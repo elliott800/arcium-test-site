@@ -1,0 +1,13 @@
+{
+  "name": "arcium-test-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Styled wireframe and functionality test site for Arcium.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

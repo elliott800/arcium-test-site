@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17241f">
+  <title>Model Tracker — Arcium</title>
+  <link rel="stylesheet" href="/portfolio-maker.css">
+  <link rel="stylesheet" href="/model-tracker.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Return to Arcium workspace">ARCIUM</a>
+    <div class="topbar-title">MODEL TRACKER</div>
+    <a class="back-link" href="/">Back to workspace</a>
+  </header>
+  <main>
+    <header class="page-heading">
+      <p class="eyebrow">MODEL WORKSPACE</p>
+      <h1>Model Tracker</h1>
+      <p>Search the combined machine catalog and organize models into named tracking lists.</p>
+    </header>
+
+    <section class="panel model-tracker-panel" aria-label="Model list maker">
+      <div class="toolbar model-toolbar">
+        <label class="field machine-field">MACHINE
+          <select id="machine-filter">
+            <option value="all">All machines</option>
+            <option value="Machine 01">Machine 01</option>
+            <option value="Machine 02">Machine 02</option>
+          </select>
+        </label>
+        <label class="search-field">SEARCH MODELS
+          <input id="model-search" type="search" placeholder='Search names or tags: #machine-01 !#machine-02 "model_a"'>
+        </label>
+        <button id="open-model-filters" class="button secondary" type="button">Filters</button>
+        <button id="open-model-columns" class="button secondary" type="button">Columns</button>
+      </div>
+      <div id="model-filter-chips" class="filter-chip-row" aria-label="Active model filters"></div>
+      <div class="model-list-toolbar">
+        <label class="field model-list-select">LOAD LIST BY NAME
+          <select id="model-list-select"><option value="">New</option></select>
+        </label>
+        <label class="field model-list-name">LIST NAME
+          <input id="model-list-name" maxlength="48" placeholder="Name this model list">
+        </label>
+        <button id="save-model-list" class="button primary" type="button">Save list</button>
+        <button id="import-model-list" class="button secondary" type="button">Merge another list</button>
+        <label class="field model-import-select">MERGE FROM
+          <select id="model-import-source"><option value="">Choose list</option></select>
+        </label>
+      </div>
+      <div id="model-tracker-status" class="status" role="status" aria-live="polite"></div>
+      <div class="model-table-grid">
+        <section class="model-table-panel" aria-labelledby="model-catalog-title">
+          <div class="section-heading"><div><h2 id="model-catalog-title">Combined model catalog</h2><p>Select models from either machine to add to the open list.</p></div></div>
+          <div class="model-table-actions">
+            <label class="select-all"><input id="select-all-models" type="checkbox"> Select all visible</label>
+            <span id="selected-model-count" class="muted">0 selected</span>
+            <button id="add-models" class="button primary" type="button">Add selected</button>
+          </div>
+          <div class="table-wrap">
+            <table id="model-catalog-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="model-table-panel" aria-labelledby="model-list-title">
+          <div class="section-heading"><div><h2 id="model-list-title">Model Tracker Creation Table</h2><p id="model-list-count">New list · 0 models</p></div></div>
+          <div class="model-table-actions">
+            <label class="select-all"><input id="select-all-list-members" type="checkbox"> Select all members</label>
+            <button id="remove-models" class="button secondary" type="button">Remove selected</button>
+          </div>
+          <div class="table-wrap">
+            <table id="model-list-table" class="creation-table" aria-label="Model Tracker creation table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="model-filter-dialog">
+    <div class="dialog-body model-dialog-body">
+      <div class="dialog-heading"><div><p class="eyebrow">CATALOG FILTERS</p><h2>Filter model tags</h2></div><button class="close-button" data-close-model-dialog type="button" aria-label="Close">×</button></div>
+      <label class="field">INCLUDE TAGS (#)<input id="include-model-tags" list="model-tags" placeholder="Comma-separated tags"></label>
+      <label class="field">EXCLUDE TAGS (!#)<input id="exclude-model-tags" list="model-tags" placeholder="Comma-separated tags"></label>
+      <datalist id="model-tags"><option value="machine-01"></option><option value="machine-02"></option><option value="model"></option></datalist>
+      <div class="dialog-actions"><button id="clear-model-filters" class="button secondary" type="button">Clear</button><button id="apply-model-filters" class="button primary" type="button">Apply filters</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="model-columns-dialog">
+    <div class="dialog-body model-dialog-body">
+      <div class="dialog-heading"><div><p class="eyebrow">TABLE VIEW</p><h2>Choose columns</h2></div><button class="close-button" data-close-model-dialog type="button" aria-label="Close">×</button></div>
+      <div class="column-manager">
+        <section class="column-pane">
+          <h3>Available columns</h3>
+          <label><input id="select-all-model-available" type="checkbox"> Select all</label>
+          <div id="model-available-columns" class="column-options"></div>
+          <button id="add-model-columns" class="button primary" type="button">＋ Add selected</button>
+        </section>
+        <section class="column-pane">
+          <h3>Active columns</h3>
+          <label><input id="select-all-model-active" type="checkbox"> Select all</label>
+          <div id="model-active-columns" class="column-options"></div>
+          <button id="remove-model-columns" class="button secondary" type="button">− Remove selected</button>
+        </section>
+      </div>
+    </div>
+  </dialog>
+  <script src="/model-tracker.js"></script>
+</body>
+</html>

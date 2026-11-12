@@ -1,0 +1,271 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", "Aptos", sans-serif;
+  color: #242923;
+  background: #f5f5f2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  font-weight: 400;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+a { color: inherit; }
+
+.landing {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(440px, .92fr);
+  min-height: 100vh;
+}
+
+.brand-panel {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 46px 8.3%;
+  color: #f2f4ee;
+  background: #17241f;
+  isolation: isolate;
+}
+
+.brand-panel::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 75%, rgb(101 137 108 / 23%), transparent 48%),
+    linear-gradient(145deg, transparent 34%, rgb(0 0 0 / 15%));
+  content: "";
+}
+
+.brand, .mobile-brand {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  font-family: "Segoe UI", "Aptos", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-decoration: none;
+}
+
+.brand-mark { width: 38px; height: 38px; }
+
+.brand-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  margin: auto 0;
+  padding: 80px 0 100px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #858f84;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .17em;
+}
+
+.brand-copy .eyebrow { color: #bdc5b7; }
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a7bd8c;
+  box-shadow: 0 0 12px rgb(167 189 140 / 60%);
+}
+
+.brand-copy h1 {
+  margin: 28px 0 20px;
+  font-family: "Segoe UI", "Aptos", sans-serif;
+  font-size: clamp(54px, 7vw, 88px);
+  font-weight: 500;
+  letter-spacing: -.075em;
+  line-height: .99;
+}
+
+.brand-copy h1 span { color: #b6c69d; }
+
+.brand-copy p {
+  max-width: 340px;
+  margin: 0;
+  color: #bdc5b7;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.brand-footer {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #929e91;
+  font-size: 12px;
+}
+
+.footer-mark {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 1px solid rgb(225 232 218 / 24%);
+  border-radius: 50%;
+  color: #c4cfb8;
+  font-family: "Segoe UI", "Aptos", sans-serif;
+  font-size: 12px;
+}
+
+.orbit {
+  position: absolute;
+  z-index: -1;
+  right: -310px;
+  bottom: 4%;
+  width: min(67vw, 760px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(214 227 202 / 8%);
+  border-radius: 50%;
+}
+
+.orbit-two { right: -235px; bottom: 13%; width: min(53vw, 610px); }
+.orbit-three { right: -160px; bottom: 22%; width: min(40vw, 460px); }
+
+.signin-panel {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 10%;
+  background: #f7f7f4;
+}
+
+.signin-content { width: min(100%, 390px); }
+.mobile-brand { display: none; }
+
+.signin-heading { margin-bottom: 36px; }
+
+.signin-heading h2 {
+  margin: 14px 0 8px;
+  font-family: Manrope, sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -.055em;
+}
+
+.signin-heading p, .signin-note {
+  margin: 0;
+  color: #777d75;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+form { display: grid; }
+
+form label, .password-label label {
+  margin-bottom: 9px;
+  color: #343a33;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  height: 49px;
+  margin-bottom: 23px;
+  padding: 0 14px;
+  border: 1px solid #dedfd9;
+  border-radius: 6px;
+  outline: none;
+  background: #fbfbf9;
+  color: #242923;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+input::placeholder { color: #a4a8a0; }
+input:focus { border-color: #687b62; box-shadow: 0 0 0 3px rgb(104 123 98 / 13%); }
+
+.password-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.password-label span {
+  color: #92978f;
+  font-size: 11px;
+}
+
+.signin-button {
+  display: flex;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: #263b30;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background .18s ease, transform .18s ease;
+}
+
+.signin-button:hover { transform: translateY(-1px); background: #344d3e; }
+.signin-button:focus-visible { outline: 3px solid #a8bb99; outline-offset: 3px; }
+.signin-button span { font-size: 17px; }
+
+.signin-note {
+  margin-top: 21px;
+  color: #92978f;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+
+.signin-footer {
+  position: absolute;
+  right: 5%;
+  bottom: 30px;
+  left: 5%;
+  display: flex;
+  justify-content: space-between;
+  color: #92978f;
+  font-size: 11px;
+}
+
+@media (max-width: 800px) {
+  .landing { grid-template-columns: 1fr; }
+  .brand-panel { display: none; }
+  .signin-panel { min-height: 100vh; padding: 48px 24px 80px; }
+  .mobile-brand { display: inline-flex; margin-bottom: 64px; color: #263b30; }
+  .mobile-brand .brand-mark { width: 33px; height: 33px; }
+  .signin-heading h2 { font-size: 31px; }
+  .signin-footer { right: 24px; left: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}

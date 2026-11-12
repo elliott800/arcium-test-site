@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17241f">
+  <title>Portfolio Maker — Arcium</title>
+  <link rel="stylesheet" href="/portfolio-maker.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Return to Arcium workspace">ARCIUM</a>
+    <div class="topbar-title">PORTFOLIO MAKER</div>
+    <a class="back-link" href="/">Back to workspace</a>
+  </header>
+  <main>
+    <header class="page-heading">
+      <p class="eyebrow">INSTRUMENT WORKSPACE</p>
+      <h1>Portfolio Maker</h1>
+      <p>Find instruments, shape your view, and organize selections into portfolios.</p>
+    </header>
+    <section class="panel" aria-label="Instrument catalog and portfolio manager">
+      <div class="toolbar">
+        <label class="field source-field">SOURCE
+          <select id="source-select"><option value="all">All</option><option value="yahoo">Yahoo</option><option value="webull">Webull</option></select>
+        </label>
+        <label class="field portfolio-view-field">VIEW PORTFOLIO
+          <select id="portfolio-view"><option value="new">New</option></select>
+        </label>
+        <label class="search-field">SEARCH INSTRUMENTS
+          <input id="instrument-search" placeholder='Search text "Apple Inc." or tags # stock option !# future'>
+        </label>
+        <button id="add-filter" class="button secondary" type="button">Add filter</button>
+        <button id="choose-columns" class="button secondary" type="button">Columns</button>
+      </div>
+      <div class="filter-chip-row" id="filter-chips" aria-label="Active filters"></div>
+      <div class="portfolio-actions">
+        <label class="select-all"><input id="select-all" type="checkbox"> Select all visible</label>
+        <span id="selection-count" class="muted">0 selected</span>
+        <button id="undo-view" type="button" class="button secondary" disabled>Undo view</button>
+        <div class="membership-actions" aria-label="Portfolio membership actions">
+          <details class="portfolio-action-picker">
+            <summary class="portfolio-action-button add-action" aria-label="Add selected instruments to portfolios" title="Add selected instruments">＋</summary>
+            <div class="portfolio-action-menu">
+              <strong>Stage selected instruments</strong>
+              <p>Add the checked catalog rows to the Portfolio List Builder below. Save the list when it is ready.</p>
+              <button id="add-selected-to-builder" type="button" class="button primary">Add selected to builder list</button>
+            </div>
+          </details>
+          <details class="portfolio-action-picker">
+            <summary class="portfolio-action-button remove-action" aria-label="Remove selected instruments from portfolios" title="Remove selected instruments">−</summary>
+            <div class="portfolio-action-menu">
+              <strong>Remove selected from</strong>
+              <div id="remove-portfolio-options" class="portfolio-checkboxes"></div>
+              <button id="remove-selected" type="button" class="button secondary">Remove</button>
+            </div>
+          </details>
+        </div>
+      </div>
+      <label class="rainbow-toggle"><input id="rainbow-drill-toggle" type="checkbox" checked> Rainbow drill colors</label>
+      <div class="table-wrap">
+        <table id="instrument-table">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <section class="portfolio-builder" aria-label="Portfolio list builder">
+        <div class="builder-heading">
+          <div><h2>Portfolio List Builder</h2><p id="builder-list-count">0 instruments staged</p></div>
+          <button id="clear-builder-list" type="button" class="button secondary">Clear list</button>
+        </div>
+        <div class="builder-merge-row">
+          <label class="field">MERGE FROM
+            <select id="portfolio-merge-source"><option value="">Choose portfolio</option></select>
+          </label>
+          <button id="merge-portfolios" type="button" class="button secondary">Merge into creation table</button>
+        </div>
+        <div id="builder-list-items" class="builder-list-items"></div>
+        <form id="save-portfolio-builder" class="builder-save-row">
+          <label class="field">PORTFOLIO NAME
+            <input id="builder-portfolio-name" maxlength="48" placeholder="Name this portfolio" required>
+          </label>
+          <button type="submit" class="button primary">Save builder list</button>
+        </form>
+      </section>
+    </section>
+    <section class="portfolio-section" aria-label="Your portfolios">
+      <div class="section-heading"><div><h2>Your portfolios</h2><p>Select existing portfolios above to add or remove the checked instruments.</p></div></div>
+      <div id="portfolio-cards" class="portfolio-cards"></div>
+    </section>
+  </main>
+  <dialog id="filter-dialog">
+    <form method="dialog" class="dialog-body">
+      <div class="dialog-heading"><div><p class="eyebrow">FILTERS</p><h2>Add filters</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+      <p class="help">Add include and exclude tags separately. In search, use # and !# to switch between tag modes, separate tags with spaces or commas, and quote exact text phrases (for example: # stock option !# future "Apple Inc.").</p>
+      <div class="tag-filter-grid">
+        <section class="tag-filter-control">
+          <label class="field" for="include-tag-input">Include tags (#)
+            <input id="include-tag-input" list="catalog-tags" placeholder="Type or choose a tag">
+          </label>
+          <button id="add-include-tag" type="button" class="button primary">＋ Add include tag</button>
+          <details class="tag-filter-dropdown">
+            <summary>Included tags <span id="include-tag-count">0</span></summary>
+            <div id="include-tag-options" class="tag-filter-options"></div>
+          </details>
+        </section>
+        <section class="tag-filter-control">
+          <label class="field" for="exclude-tag-input">Exclude tags (!#)
+            <input id="exclude-tag-input" list="catalog-tags" placeholder="Type or choose a tag">
+          </label>
+          <button id="add-exclude-tag" type="button" class="button secondary">＋ Add exclude tag</button>
+          <details class="tag-filter-dropdown">
+            <summary>Excluded tags <span id="exclude-tag-count">0</span></summary>
+            <div id="exclude-tag-options" class="tag-filter-options"></div>
+          </details>
+        </section>
+      </div>
+      <datalist id="catalog-tags"></datalist>
+      <div class="dialog-actions"><button class="button secondary" value="cancel">Done</button></div>
+    </form>
+  </dialog>
+  <dialog id="columns-dialog">
+    <form method="dialog" class="dialog-body">
+      <div class="dialog-heading"><div><p class="eyebrow">TABLE VIEW</p><h2>Choose columns</h2></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+      <p class="help">Select available columns to add or active columns to remove. Set minimum and maximum values for active numeric columns; instruments with NaN values remain visible.</p>
+      <div class="column-manager">
+        <section class="column-pane">
+          <h3>Available columns</h3>
+          <div class="column-pane-actions">
+            <label><input id="select-all-available-columns" type="checkbox"> Select all</label>
+            <button id="add-columns" type="button" class="button primary" aria-label="Add selected columns">＋</button>
+          </div>
+          <div id="available-column-options" class="column-options"></div>
+        </section>
+        <section class="column-pane">
+          <h3>Active display columns</h3>
+          <div class="column-pane-actions">
+            <label><input id="select-all-active-columns" type="checkbox"> Select all</label>
+            <button id="remove-columns" type="button" class="button secondary" aria-label="Remove selected columns">−</button>
+          </div>
+          <div id="active-column-options" class="column-options"></div>
+          <div id="column-bounds" class="column-bounds"></div>
+        </section>
+      </div>
+      <div class="dialog-actions"><button class="button secondary" value="cancel">Done</button></div>
+    </form>
+  </dialog>
+  <script src="/portfolio-maker.js"></script>
+</body>
+</html>

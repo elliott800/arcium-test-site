@@ -1,0 +1,132 @@
+/* Wireframe layout only. No brand styling, no animation. */
+.hidden { display: none !important; }
+body { font-family: sans-serif; margin: 0; color: #111; background: #fff; }
+button, input, select, textarea { font: inherit; }
+h3, h4 { margin: 6px 0; }
+.muted { color: #666; }
+
+/* top bar */
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #999; padding: 6px 10px; position: sticky; top: 0; background: #fff; z-index: 10; }
+.top-left, .top-right { display: flex; align-items: center; gap: 8px; }
+.icon-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #333; background: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.icon-btn svg { display: block; }
+.logo-ph { border: 1px dashed #666; padding: 4px 10px; }
+.menu-wrap { position: relative; }
+.menu { position: absolute; top: 110%; left: 0; min-width: 200px; background: #fff; border: 1px solid #333; padding: 8px; z-index: 20; }
+.menu button { display: block; width: 100%; text-align: left; margin: 2px 0; }
+.menu-wide { min-width: 340px; left: auto; right: 0; }
+.menu-title { font-weight: bold; margin-bottom: 6px; }
+.api-add { display: flex; gap: 4px; margin-bottom: 8px; }
+.api-add input { flex: 1; min-width: 0; }
+
+/* page nav: tabs */
+.pagenav { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid #ccc; padding: 4px 10px; flex-wrap: wrap; }
+.pagenav .menu { min-width: 220px; }
+.tab { background: #fff; border: 1px solid #aaa; padding: 4px 10px; cursor: pointer; }
+.tab.on { border-color: #111; font-weight: bold; }
+
+/* shell + side panel */
+.shell { display: flex; min-height: calc(100vh - 90px); }
+.side-panel { display: none; position: relative; border-right: 1px solid #333; background: #fafafa; }
+.side-panel.attached { display: block; width: 28px; }
+.side-panel.attached.open { width: 270px; }
+.side-arrow { position: absolute; top: 8px; right: -13px; width: 26px; height: 26px; border: 1px solid #333; background: #fff; cursor: pointer; padding: 0; z-index: 5; }
+.side-body { display: none; padding: 8px; }
+.side-panel.open .side-body { display: block; }
+.side-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.side-label { font-weight: bold; margin: 10px 0 4px; }
+.tile-list { display: flex; flex-direction: column; gap: 6px; }
+.side-sec { border: 1px solid #bbb; background: #fff; margin-bottom: 6px; }
+.sec-head { display: block; width: 100%; text-align: left; background: #eee; border: 0; padding: 6px; cursor: pointer; }
+.sec-body { padding: 6px; }
+.sec-body button { display: block; width: 100%; text-align: left; margin: 2px 0; padding: 4px; background: #fff; border: 1px solid #aaa; cursor: pointer; }
+.sec-body button.on { border-color: #111; font-weight: bold; }
+.sub { border-top: 1px dashed #999; margin-top: 6px; padding-top: 6px; }
+.opt { border: 1px solid #ccc; padding: 4px; margin: 4px 0; }
+.ph-sm { border: 1px dashed #999; height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px; margin-top: 4px; }
+
+main { flex: 1; min-width: 0; padding: 12px; }
+.view { min-width: 0; }
+
+/* homepage */
+.hero { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+.logo-panel { border: 1px dashed #666; min-height: 160px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.graphs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.graph { border: 1px solid #bbb; padding: 6px; }
+.spark { width: 100%; height: 100px; display: block; color: #1e5aa8; }
+.terminal-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.ph-img { border: 1px dashed #666; height: 140px; display: flex; align-items: center; justify-content: center; text-align: center; color: #555; }
+
+/* workspace grid */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 260px; gap: 8px; }
+.cell { border: 1px dashed #888; padding: 6px; overflow: auto; min-height: 0; }
+.cell.over, .over { outline: 2px solid #1e5aa8; }
+.empty { color: #777; }
+.panel { border: 1px solid #333; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+.panel-head { display: flex; align-items: center; gap: 6px; background: #eee; padding: 4px; }
+.panel-head[data-move] { cursor: grab; }
+.panel-name { flex: 1; }
+.panel-body { padding: 6px; flex: 1; }
+.ph { border: 1px dashed #999; height: 120px; display: flex; align-items: center; justify-content: center; margin-top: 6px; color: #666; }
+.status { min-height: 1.2em; color: #333; margin: 6px 0; }
+
+/* generic boxes for machine / engines views */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.box { border: 1px solid #bbb; padding: 8px; margin-bottom: 8px; min-width: 0; }
+.box table { width: 100%; border-collapse: collapse; }
+.box th, .box td { border: 1px solid #ccc; padding: 4px; text-align: left; vertical-align: top; }
+.box ul { margin: 4px 0; padding-left: 18px; }
+.meter { margin: 6px 0; }
+.meter-head { display: flex; justify-content: space-between; }
+.bar { height: 14px; border: 1px solid #333; background: #fff; }
+.bar span { display: block; height: 100%; background: #1e5aa8; }
+.row-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.toggle { display: flex; gap: 6px; margin: 8px 0; }
+.chip { display: inline-block; border: 1px solid #888; padding: 2px 6px; margin: 2px; font-size: 13px; }
+.chip.drag { cursor: grab; }
+.chip button { font-size: 11px; }
+
+/* list managers (watchlists, model lists) */
+.mgr-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.mgr-bar input[type="search"] { flex: 1; min-width: 0; }
+.mgr-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; }
+.mgr-results { border: 1px solid #aaa; height: 300px; overflow: auto; padding: 4px; }
+.mgr-lists { border: 1px solid #aaa; padding: 6px; }
+.row-item { display: block; padding: 3px; border-bottom: 1px solid #eee; cursor: pointer; }
+.row-item[draggable="true"] { cursor: grab; }
+.row-item .sym { font-weight: bold; margin-right: 6px; }
+.box-sub { border-top: 1px dashed #bbb; margin-top: 6px; padding-top: 6px; }
+.list-ul { list-style: none; padding: 0; margin: 4px 0; }
+.list-ul button { width: 100%; text-align: left; margin: 2px 0; background: #fff; border: 1px solid #aaa; cursor: pointer; padding: 3px; }
+.list-ul button.on { border-color: #111; font-weight: bold; }
+.acct-row { display: flex; gap: 4px; margin: 4px 0; }
+.acct-row input, .acct-row select { flex: 1; min-width: 0; }
+.mgr-lists textarea { width: 100%; box-sizing: border-box; margin: 4px 0; }
+.list-member-actions { align-items: center; justify-content: space-between; }
+.list-member-actions label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.list-members { max-height: 150px; overflow: auto; }
+.list-member-item { display: flex; align-items: center; gap: 6px; }
+
+/* tiles */
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.tile { display: flex; gap: 8px; align-items: center; border: 1px solid #888; padding: 6px; cursor: grab; background: #fff; }
+.tile-name { font-weight: bold; }
+.tile-use { font-size: 12px; color: #555; }
+
+/* modal */
+.modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.modal-box { background: #fff; border: 1px solid #333; padding: 12px; width: min(900px, 94vw); max-height: 90vh; overflow: auto; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+/* API tools tree */
+.api-node { border: 1px solid #bbb; padding: 6px; margin: 6px 0; }
+.api-head { display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+.api-node label { display: block; margin: 4px 0; }
+.api-node input[type="password"], .api-node input[type="text"] { width: 100%; box-sizing: border-box; }
+.api-node ul { margin: 4px 0; padding-left: 18px; }
+
+@media (max-width: 900px) {
+  .hero, .terminal-row, .grid, .graphs, .two, .mgr-grid { grid-template-columns: 1fr; }
+  .grid { grid-auto-rows: auto; }
+  .menu-wide { min-width: 260px; }
+}

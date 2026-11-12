@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17241f">
+  <title>Home — Arcium</title>
+  <link rel="stylesheet" href="/workspace.css">
+</head>
+<body>
+  <header class="topbar">
+    <details class="account-menu">
+      <summary><span class="account-avatar" aria-hidden="true">G</span><span>guest</span><span aria-hidden="true">⌄</span></summary>
+      <div class="account-menu-popover">
+        <p>Local demo account</p>
+        <button type="button" data-account-option="Profile">Profile</button>
+        <button type="button" data-account-option="API Tools">API Tools</button>
+        <button type="button" data-account-option="Agent settings">Agent settings</button>
+      </div>
+    </details>
+    <a class="brand" href="/" aria-label="Arcium Home">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path d="M20 3.5 36.5 13v14L20 36.5 3.5 27V13L20 3.5Z" stroke="currentColor" stroke-width="1.5"/>
+        <path d="m12 25 8-14 8 14m-12-5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>ARCIUM</span>
+    </a>
+    <nav class="workspace-nav" aria-label="Workspace navigation">
+      <label class="workspace-picker-label" for="workspace-select">WORKSPACE</label>
+      <select id="workspace-select" aria-label="Select workspace"></select>
+      <button id="portal-control-toggle" class="control-toggle" type="button" aria-haspopup="dialog" aria-expanded="false">
+        <span aria-hidden="true">▦</span> Portal control
+      </button>
+      <button id="save-workspace" class="new-workspace" type="button">Save</button>
+      <button id="add-workspace" class="new-workspace" type="button"><span aria-hidden="true">+</span> New</button>
+      <button id="delete-workspace" class="delete-workspace" type="button" aria-label="Delete current workspace">Delete</button>
+    </nav>
+    <div class="top-actions">
+      <span class="demo-label"><span></span> LOCAL DEMO</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">YOUR PRIVATE ENVIRONMENT</p>
+        <h1 id="workspace-title">Home</h1>
+        <p class="subheading">Your control center, arranged around the way you think.</p>
+      </div>
+    </div>
+
+    <section class="canvas" aria-label="Workspace canvas">
+      <div class="canvas-toolbar">
+        <div class="canvas-hint">
+          <span class="hint-icon" aria-hidden="true">↗</span>
+          <span>Drag a portal to a workspace edge to dock the library; use the translucent zones to split or tab panels.</span>
+        </div>
+      </div>
+      <div id="workspace-canvas" class="workspace-canvas"></div>
+    </section>
+
+    <p id="workspace-status" class="workspace-status" role="status" aria-live="polite">Saved in this browser.</p>
+    <p class="canvas-footnote">Drag a portal from the library to a panel center to add a tab, or to an edge to create a docked panel. Drag tabs between panels to move them.</p>
+  </main>
+
+  <aside id="docked-control" class="docked-control" aria-label="Portal control panel" hidden>
+    <div class="control-panel-heading" draggable="true" title="Drag to an edge to dock, or to the center for a modal">
+      <div>
+        <p class="eyebrow">PORTAL LIBRARY</p>
+        <h2>Add portals</h2>
+      </div>
+      <button id="dock-collapse" class="panel-close" type="button" aria-label="Close portal library">×</button>
+    </div>
+    <p class="control-panel-hint">Click a portal to add it as a tab. Drag the panel to a translucent workspace edge to dock it.</p>
+    <div id="docked-portals" class="docked-portals"></div>
+    <footer class="control-panel-footer">
+      <span>Signed in as guest</span>
+      <a href="/signin.html">Log out</a>
+    </footer>
+  </aside>
+
+  <dialog id="portal-picker" class="portal-picker" aria-labelledby="picker-title">
+    <div id="picker-head" class="picker-head" draggable="true" title="Drag to an edge to dock this panel">
+      <div>
+        <p class="eyebrow">PORTAL LIBRARY</p>
+        <h2 id="picker-title">Choose a portal</h2>
+      </div>
+      <button id="picker-close" class="close-picker" type="button" aria-label="Close portal library">×</button>
+    </div>
+    <p id="picker-description" class="picker-description"></p>
+    <div id="portal-options" class="portal-options"></div>
+  </dialog>
+
+  <dialog id="workspace-dialog" class="workspace-dialog" aria-labelledby="workspace-dialog-title">
+    <form id="workspace-form">
+      <div class="picker-head">
+        <div>
+          <p class="eyebrow">WORKSPACE</p>
+          <h2 id="workspace-dialog-title">Create workspace</h2>
+        </div>
+        <button id="workspace-dialog-close" class="close-picker" type="button" aria-label="Close dialog">×</button>
+      </div>
+      <label class="workspace-name-label" for="workspace-name">Workspace name</label>
+      <input id="workspace-name" name="name" maxlength="48" autocomplete="off" required placeholder="e.g. Research">
+      <button class="new-workspace workspace-create" type="submit">Create workspace</button>
+    </form>
+  </dialog>
+
+  <div id="account-status" class="account-status" role="status" aria-live="polite"></div>
+
+  <script src="/workspace.js"></script>
+</body>
+</html>
