@@ -1,6 +1,6 @@
 .model-toolbar { margin-bottom: 10px; }
-.machine-field { width: 150px; }
-.machine-field select, .model-list-select select, .model-import-select select { width: 100%; }
+.silo-field { width: 160px; }
+.silo-field select, .model-list-select select, .model-import-select select { width: 100%; }
 .model-list-toolbar {
   display: flex;
   align-items: end;
@@ -16,7 +16,7 @@
 .model-list-name { min-width: 180px; flex: 1; }
 .model-list-name input { width: 100%; }
 .model-import-select { width: 170px; }
-.model-table-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.model-table-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
 .model-table-panel { min-width: 0; padding: 13px; border: 1px solid #e5e9e2; border-radius: 5px; background: #fff; }
 .model-table-panel .section-heading { margin-bottom: 10px; }
 .model-table-panel h2 { margin: 0 0 4px; color: #3a4939; font-size: 15px; }
@@ -25,6 +25,16 @@
 .model-table-actions .button { margin-left: auto; }
 .model-table-panel .table-wrap { max-height: 430px; overflow: auto; }
 .model-table-panel table { min-width: 100%; }
+.model-tree-table { min-width: 1100px !important; }
+.model-tree-table .tree-pick { min-width: 72px; }
+.model-tree-table .group-row > td { background: #f3f6f0; color: #465744; font-weight: 600; }
+.model-tree-table .model-type-row > td { background: #e9eee5; }
+.model-tree-table .model-silo-row > td { background: #f5f7f2; }
+.model-tree-table .drill-child > td { padding: 0 0 0 24px; }
+.model-tree-table .nested-table { width: 100%; }
+.model-tree-table .model-tree-label { padding-left: 12px; }
+.model-tree-table .model-data-row td { vertical-align: top; }
+.model-tree-table .model-data-row td:not(:first-child) { white-space: normal; min-width: 105px; }
 .model-table-panel th[draggable="true"] { cursor: grab; }
 .model-table-panel td:first-child, .model-table-panel th:first-child { width: 40px; text-align: center; }
 .model-table-panel .sort-button { white-space: nowrap; }
@@ -50,7 +60,6 @@
 @media (max-width: 760px) {
   .model-list-toolbar { align-items: stretch; flex-wrap: wrap; }
   .model-list-select, .model-list-name, .model-import-select { width: 100%; }
-  .model-table-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 500px) {

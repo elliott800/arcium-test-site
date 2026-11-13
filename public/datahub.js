@@ -120,7 +120,7 @@ const view = document.querySelector('#datahub-view');
 const navigation = document.querySelector('#datahub-navigation');
 let activeSection = 'home';
 let activePanel = 'summary';
-let recorderControllerView = 'builder';
+let recorderControllerView = 'registry';
 let recorderRegistryView = 'sources';
 let activeCategory = 'instrument';
 let activeSource = 'all';
@@ -1337,15 +1337,7 @@ function renderRecorderRegistry() {
     label: source,
     source,
     count: lists.reduce((total, list) => total + list.items.length, 0),
-    children: [...new Set(lists.map((list) => list.category))].map((category) => {
-      const categoryLists = lists.filter((list) => list.category === category);
-      const mergedList = {
-        ...categoryLists[0],
-        items: categoryLists.flatMap((list) => list.items)
-          .filter((item, index, items) => items.findIndex((entry) => entry.label === item.label) === index),
-      };
-      return listTree(mergedList);
-    }),
+    children: lists.map(listNode),
   }));
   const listRoots = builtLists.map(listNode);
   const rows = recorderRegistryView === 'lists' ? listRoots : sourceRoots;
@@ -1595,7 +1587,7 @@ function render() {
     const someSelected = labels.some((label) => builderSelections.has(label));
     builderSelectAll.indeterminate = someSelected && !allSelected;
   }
-  view.querySelectorAll('[data-builder-branch-select][aria-checked="mixed"]').forEach((checkbox) => {
+  view.querySelectorAll('[data-builder-branch-select][aria-checked="mixed"], [data-builder-draft-branch-select][aria-checked="mixed"]').forEach((checkbox) => {
     checkbox.indeterminate = true;
   });
   view.querySelectorAll('[data-record-key][aria-checked="mixed"]').forEach((checkbox) => {
@@ -1987,6 +1979,9 @@ view.addEventListener('change', (event) => {
   } else if (event.target.id === 'registry-list-select') {
     selectedRegistryListName = event.target.value;
     builderItemRateOverrides.clear();
+    builderTagQuery = '';
+    builderFilters = { include: new Set(), exclude: new Set() };
+    builderExpandedDrillKeys.clear();
     const list = builtLists.find((item) => item.name === selectedRegistryListName);
     if (list) {
       builderCategory = list.category;

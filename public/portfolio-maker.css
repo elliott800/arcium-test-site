@@ -32,21 +32,16 @@ main { width: min(1320px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 64
 .select-all input, .instrument-select, .column-option input { accent-color: #647f5c; }
 .muted { color: #818a7d; font-size: 9px; white-space: nowrap; }
 .membership-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
-.portfolio-action-picker { position: relative; }
-.portfolio-action-button { display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid #dfe4da; border-radius: 4px; background: #fff; color: #586951; cursor: pointer; font-size: 18px; font-weight: 600; list-style: none; }
-.portfolio-action-button::-webkit-details-marker { display: none; }
-.portfolio-action-button:hover, .portfolio-action-picker[open] .portfolio-action-button { border-color: #9fae96; background: #f3f6f0; }
-.portfolio-action-button.add-action { color: #fff; border-color: #566e52; background: #566e52; }
-.portfolio-action-button.add-action:hover, .portfolio-action-picker[open] .portfolio-action-button.add-action { background: #40573f; }
-.portfolio-action-button.remove-action { color: #765a54; }
-.portfolio-action-menu { position: absolute; z-index: 4; top: calc(100% + 5px); left: 0; display: grid; width: min(250px, calc(100vw - 40px)); gap: 10px; padding: 12px; border: 1px solid #dfe4da; border-radius: 5px; background: #fff; box-shadow: 0 8px 24px rgb(22 34 24 / 14%); }
-.portfolio-action-menu > strong, .new-portfolio-field { color: #687363; font-size: 9px; }
-.portfolio-action-menu > p { margin: -4px 0 0; color: #858c81; font-size: 9px; line-height: 1.5; }
-.new-portfolio-field { display: grid; gap: 5px; }
-.new-portfolio-field input { width: 100%; height: 33px; padding: 0 8px; border: 1px solid #dfe3db; border-radius: 4px; color: #435143; font-size: 10px; }
-.portfolio-checkboxes { display: grid; max-height: 130px; gap: 4px; overflow: auto; }
+.portfolio-target-picker { position: relative; }
+.portfolio-target-picker > summary { min-height: 35px; padding: 10px; border: 1px solid #dfe4da; border-radius: 4px; background: #fff; color: #586951; cursor: pointer; font-size: 10px; font-weight: 600; list-style: none; white-space: nowrap; }
+.portfolio-target-picker > summary::-webkit-details-marker { display: none; }
+.portfolio-target-picker[open] > summary { border-color: #9fae96; background: #f3f6f0; }
+.portfolio-checkboxes { position: absolute; z-index: 4; top: calc(100% + 5px); left: 0; display: grid; width: min(300px, calc(100vw - 40px)); max-height: 240px; gap: 7px; overflow: auto; padding: 10px; border: 1px solid #dfe4da; border-radius: 5px; background: #fff; box-shadow: 0 8px 24px rgb(22 34 24 / 14%); }
 .portfolio-checkboxes label { display: inline-flex; align-items: center; gap: 4px; color: #566352; font-size: 9px; white-space: nowrap; }
 .portfolio-checkboxes input { accent-color: #647f5c; }
+.portfolio-checkboxes .new-portfolio-target { display: grid; gap: 7px; padding-bottom: 8px; border-bottom: 1px solid #e6e9e2; }
+.new-portfolio-target > span { display: inline-flex; align-items: center; gap: 5px; color: #566352; font-size: 9px; font-weight: 700; }
+.new-portfolio-target input[type="text"] { width: 100%; height: 32px; padding: 0 8px; border: 1px solid #dfe3db; border-radius: 4px; color: #435143; font-size: 10px; }
 .no-portfolios { color: #93998e; font-size: 9px; }
 .status { min-height: 18px; margin: 0 0 6px; color: #6b7b65; font-size: 10px; }
 .table-wrap { overflow: auto; border: 1px solid #e5e9e2; border-radius: 5px; }
@@ -88,6 +83,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .empty-row { text-align: center; }
 .portfolio-builder { display: grid; gap: 12px; margin-top: 16px; padding: 14px; border: 1px solid #e0e6da; border-radius: 6px; background: #f7f9f4; }
 .builder-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.builder-heading-actions { display: flex; flex-wrap: wrap; gap: 7px; }
 .builder-heading h2 { margin: 0 0 4px; color: #39483a; font-size: 13px; font-weight: 600; }
 .builder-heading p { margin: 0; color: #858c81; font-size: 9px; }
 .builder-merge-row { display: flex; align-items: end; gap: 8px; }

@@ -11,8 +11,26 @@ const CATALOG = [
   { symbol: 'AMZN 2027-01-15 250C', name: 'AMZN 2027-01-15 250C', source: 'webull', assetClass: 'Stock', kind: 'option', tags: ['stock', 'option', 'technology'], form: 'Option', expiration: '2027-01-15', strike: 250, optionType: 'Call', frequencies: ['1m', '1h'], dateRanges: ['Jan 3 – Mar 31, 2025', 'Oct 1, 2025 – Nov 10, 2026'] },
   { symbol: 'GCZ6 — Gold Dec 2026', name: 'GCZ6 — Gold Dec 2026', source: 'webull', assetClass: 'Commodity', kind: 'future', tags: ['commodity', 'future'], form: 'Future', expiration: 'Dec 2026' },
   { symbol: 'CLZ6 — WTI Crude Dec 2026', name: 'CLZ6 — WTI Crude Dec 2026', source: 'webull', assetClass: 'Commodity', kind: 'future', tags: ['commodity', 'future'], form: 'Future', expiration: 'Dec 2026' },
+  { symbol: 'GC — Gold', name: 'Gold', source: 'yahoo', assetClass: 'Commodity', kind: 'spot', tags: ['commodity', 'spot'], form: 'Spot' },
+  { symbol: 'CL — WTI Crude Oil', name: 'WTI Crude Oil', source: 'yahoo', assetClass: 'Commodity', kind: 'spot', tags: ['commodity', 'spot'], form: 'Spot' },
+  { symbol: 'EUR/USD', name: 'EUR/USD', source: 'yahoo', assetClass: 'Currency', kind: 'spot', tags: ['currency', 'spot'], form: 'Spot' },
+  { symbol: 'USD/JPY', name: 'USD/JPY', source: 'yahoo', assetClass: 'Currency', kind: 'spot', tags: ['currency', 'spot'], form: 'Spot' },
+  { symbol: 'BTC/USD', name: 'BTC/USD', source: 'yahoo', assetClass: 'Crypto', kind: 'spot', tags: ['crypto', 'spot'], form: 'Spot' },
+  { symbol: 'ETH/USD', name: 'ETH/USD', source: 'yahoo', assetClass: 'Crypto', kind: 'spot', tags: ['crypto', 'spot'], form: 'Spot' },
+  { symbol: 'US 10Y Treasury', name: 'US 10-Year Treasury Yield', source: 'yahoo', assetClass: 'Bond', kind: 'spot', tags: ['bond', 'spot'], form: 'Spot' },
+  { symbol: 'VNQ', name: 'Vanguard Real Estate ETF', source: 'yahoo', assetClass: 'Real estate', kind: 'spot', tags: ['real estate', 'spot'], form: 'Spot' },
+  { symbol: 'SPY', name: 'SPDR S&P 500 ETF', source: 'yahoo', assetClass: 'ETF', kind: 'spot', tags: ['etf', 'spot'], form: 'Spot' },
+  { symbol: 'QQQ', name: 'Invesco QQQ', source: 'yahoo', assetClass: 'ETF', kind: 'spot', tags: ['etf', 'spot'], form: 'Spot' },
+  { symbol: 'VXX', name: 'iPath Series B S&P 500 VIX ETN', source: 'yahoo', assetClass: 'ETN', kind: 'spot', tags: ['etn', 'spot'], form: 'Spot' },
+  { symbol: 'SPY Dec 2026 600/650 call spread', name: 'SPY Dec 2026 600/650 call spread', source: 'yahoo', assetClass: 'Spread', kind: 'option', tags: ['spread', 'option'], form: 'Option', optionType: 'Call spread' },
+  { symbol: 'EUR/USD', name: 'EUR/USD', source: 'webull', assetClass: 'Currency', kind: 'spot', tags: ['currency', 'spot'], form: 'Spot' },
+  { symbol: 'BTC/USD', name: 'BTC/USD', source: 'webull', assetClass: 'Crypto', kind: 'spot', tags: ['crypto', 'spot'], form: 'Spot' },
+  { symbol: 'ETH/USD', name: 'ETH/USD', source: 'webull', assetClass: 'Crypto', kind: 'spot', tags: ['crypto', 'spot'], form: 'Spot' },
+  { symbol: 'SPY', name: 'SPDR S&P 500 ETF', source: 'webull', assetClass: 'ETF', kind: 'spot', tags: ['etf', 'spot'], form: 'Spot' },
+  { symbol: 'IWM', name: 'iShares Russell 2000 ETF', source: 'webull', assetClass: 'ETF', kind: 'spot', tags: ['etf', 'spot'], form: 'Spot' },
 ];
 
+const ASSET_CLASS_ORDER = ['Stock', 'Commodity', 'Currency', 'Crypto', 'Bond', 'Real estate', 'ETF', 'ETN', 'Spread'];
 const COLUMN_DEFINITIONS = ['symbol', 'name', 'source', 'tags', 'form', 'expiration', 'strike', 'optionType'];
 const NUMERIC_COLUMNS = new Set(['strike']);
 const DRILL_HUES = [8, 205, 132, 278, 42, 185, 322, 92, 238, 58];
@@ -36,7 +54,9 @@ const elements = {
   status: document.querySelector('#status'),
   all: document.querySelector('#select-all'),
   count: document.querySelector('#selection-count'),
-  removePortfolioOptions: document.querySelector('#remove-portfolio-options'),
+  portfolioTargetOptions: document.querySelector('#portfolio-target-options'),
+  portfolioTargetPicker: document.querySelector('#portfolio-target-picker'),
+  portfolioTargetName: document.querySelector('#new-portfolio-target-name'),
   mergePortfolioSource: document.querySelector('#portfolio-merge-source'),
   builderItems: document.querySelector('#builder-list-items'),
   builderCount: document.querySelector('#builder-list-count'),
@@ -59,7 +79,9 @@ let sort = { column: 'symbol', direction: 'asc' };
 let draggedColumn = null;
 const portfolios = new Map();
 let activePortfolioView = 'new';
-const removePortfolioNames = new Set();
+const targetPortfolioNames = new Set();
+let targetNewPortfolio = true;
+let targetNewPortfolioName = '';
 const expandedRows = new Set();
 const selectedGroupRows = new Set();
 const selectedAvailableColumns = new Set();
@@ -153,17 +175,20 @@ function buildTree(items) {
     if (item.form === 'Option') return;
     forms.get(item.form).push(item);
   });
-  return [...classes].map(([assetClass, forms]) => ({
+  const formOrder = ['Spot', 'Option', 'Future'];
+  return [...classes].sort(([left], [right]) => ASSET_CLASS_ORDER.indexOf(left) - ASSET_CLASS_ORDER.indexOf(right))
+    .map(([assetClass, forms]) => ({
     key: `asset:${assetClass}`,
     label: assetClass,
-    children: [...forms].map(([form, instruments]) => ({
+    children: [...forms].sort(([left], [right]) => formOrder.indexOf(left) - formOrder.indexOf(right))
+      .map(([form, instruments]) => ({
       key: `form:${assetClass}:${form}`,
       label: form,
       children: form === 'Option'
         ? buildOptionTree(items.filter((item) => item.assetClass === assetClass && item.form === 'Option'), assetClass)
         : instruments.map((item) => ({ key: instrumentId(item), item })),
-    })),
-  }));
+      })),
+    }));
 }
 
 function buildOptionTree(items, assetClass) {
@@ -172,18 +197,21 @@ function buildOptionTree(items, assetClass) {
     const underlying = item.symbol.split(/\s+/)[0];
     if (!underlyings.has(underlying)) underlyings.set(underlying, new Map());
     const expirations = underlyings.get(underlying);
-    if (!expirations.has(item.expiration)) expirations.set(item.expiration, []);
-    expirations.get(item.expiration).push(item);
+    const expiration = item.expiration || 'Expiration not recorded';
+    if (!expirations.has(expiration)) expirations.set(expiration, []);
+    expirations.get(expiration).push(item);
   }
   return [...underlyings].map(([underlying, expirations]) => ({
     key: `option-underlying:${assetClass}:${underlying}`,
     label: underlying,
     children: [...expirations].map(([expiration, contracts]) => ({
       key: `option-expiration:${assetClass}:${underlying}:${expiration}`,
-      label: new Date(`${expiration}T00:00:00Z`).toLocaleString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }),
+      label: expiration === 'Expiration not recorded'
+        ? expiration
+        : new Date(`${expiration}T00:00:00Z`).toLocaleString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }),
       children: contracts.map((item) => ({
-        key: `option-strike:${assetClass}:${underlying}:${expiration}:${item.strike}`,
-        label: `Strike $${item.strike}`,
+        key: `option-strike:${assetClass}:${underlying}:${expiration}:${item.strike ?? 'not-recorded'}`,
+        label: Number.isFinite(item.strike) ? `Strike $${item.strike}` : 'Strike not recorded',
         children: [{
           key: instrumentId(item),
           label: 'Available data',
@@ -259,7 +287,7 @@ function renderNode(node, columns, depth = 0, index = 0, parentHue = null) {
       <input class="instrument-select" type="checkbox" data-node-id="${escapeHtml(node.key)}" ${checked ? 'checked' : ''} aria-label="Select ${escapeHtml(node.label || node.item.symbol)}">
     </td>
     ${values.map((value, index) => `<td class="${index === 0 && isGroup ? 'tree-label' : ''}" style="--cell-text-color:${drillTextColor(displayHue, lightness, depth, index + 1)}">${escapeHtml(value)}${node.item?.form === 'Option' && index === 0
-      ? `<small class="option-availability">Frequencies: ${escapeHtml(node.item.frequencies.join(', '))}<br>Date ranges: ${escapeHtml(node.item.dateRanges.join('; '))}</small>`
+      ? `<small class="option-availability">Frequencies: ${escapeHtml((node.item.frequencies || []).join(', ') || 'Not recorded')}<br>Date ranges: ${escapeHtml((node.item.dateRanges || []).join('; ') || 'Not recorded')}</small>`
       : ''}</td>`).join('')}
   </tr>`;
   if (!expanded) return row;
@@ -351,22 +379,31 @@ function restorePreviousView() {
 }
 
 function renderPortfolioChoices() {
-    const options = [...portfolios.keys()];
-    const selectedMergeSource = elements.mergePortfolioSource.value;
-    elements.portfolioView.innerHTML = `<option value="new">New</option>${options.map((name) => `
-      <option value="${escapeHtml(name)}">${escapeHtml(name)}</option>
-    `).join('')}`;
-    if (activePortfolioView !== 'new' && !portfolios.has(activePortfolioView)) activePortfolioView = 'new';
-    elements.portfolioView.value = activePortfolioView;
-    elements.removePortfolioOptions.innerHTML = options.length ? options.map((name) => `
-      <label><input type="checkbox" data-portfolio-target="remove" value="${escapeHtml(name)}" ${removePortfolioNames.has(name) ? 'checked' : ''}> ${escapeHtml(name)}</label>
-    `).join('') : '<span class="no-portfolios">No portfolios yet</span>';
-    const mergeOptions = options.filter((name) => name !== activePortfolioView);
-    elements.mergePortfolioSource.innerHTML = `<option value="">Choose portfolio</option>${mergeOptions.map((name) => `
-      <option value="${escapeHtml(name)}">${escapeHtml(name)}</option>
-    `).join('')}`;
-    elements.mergePortfolioSource.value = mergeOptions.includes(selectedMergeSource) ? selectedMergeSource : '';
-    elements.cards.innerHTML = options.map((name) => {
+  const options = [...portfolios.keys()];
+  const selectedMergeSource = elements.mergePortfolioSource.value;
+  elements.portfolioView.innerHTML = `<option value="new">New</option>${options.map((name) => `
+    <option value="${escapeHtml(name)}">${escapeHtml(name)}</option>
+  `).join('')}`;
+  if (activePortfolioView !== 'new' && !portfolios.has(activePortfolioView)) activePortfolioView = 'new';
+  elements.portfolioView.value = activePortfolioView;
+  elements.portfolioTargetOptions.innerHTML = `
+    <label class="new-portfolio-target">
+      <span><input type="checkbox" data-portfolio-target="new" ${targetNewPortfolio ? 'checked' : ''}> New portfolio</span>
+      <input id="new-portfolio-target-name" type="text" maxlength="48" placeholder="Enter a portfolio name" value="${escapeHtml(targetNewPortfolioName)}">
+    </label>
+    ${options.map((name) => `
+      <label><input type="checkbox" data-portfolio-target="existing" value="${escapeHtml(name)}" ${targetPortfolioNames.has(name) ? 'checked' : ''}> ${escapeHtml(name)}</label>
+    `).join('') || '<span class="no-portfolios">No saved portfolios yet</span>'}`;
+  elements.portfolioTargetName = elements.portfolioTargetOptions.querySelector('#new-portfolio-target-name');
+  const selectedTargetCount = options.filter((name) => targetPortfolioNames.has(name)).length + Number(targetNewPortfolio);
+  elements.portfolioTargetPicker.querySelector('summary').textContent =
+    `Choose portfolio targets (${selectedTargetCount} selected)`;
+  const mergeOptions = options.filter((name) => name !== activePortfolioView);
+  elements.mergePortfolioSource.innerHTML = `<option value="">Choose portfolio</option>${mergeOptions.map((name) => `
+    <option value="${escapeHtml(name)}">${escapeHtml(name)}</option>
+  `).join('')}`;
+  elements.mergePortfolioSource.value = mergeOptions.includes(selectedMergeSource) ? selectedMergeSource : '';
+  elements.cards.innerHTML = options.map((name) => {
     const members = [...portfolios.get(name)];
     const memberLabels = members.map((id) => {
       const item = CATALOG.find((catalogItem) => instrumentId(catalogItem) === id);
@@ -397,14 +434,13 @@ function renderPortfolioBuilder() {
         <thead><tr><th>Select</th>${columnsByClass.all.map((column) => `
           <th draggable="true" class="column-drag" data-column="${column}">
             <button class="sort-button" type="button" data-sort="${column}">${escapeHtml(LABELS[column])} ${sort.column === column ? (sort.direction === 'asc' ? '↑' : '↓') : '↕'}</button>
-          </th>`).join('')}<th>Action</th></tr></thead>
+          </th>`).join('')}</tr></thead>
         <tbody>${items.length ? items.map((item) => `
           <tr>
             <td><input type="checkbox" data-builder-symbol="${escapeHtml(instrumentId(item))}" ${selectedBuilderSymbols.has(instrumentId(item)) ? 'checked' : ''} aria-label="Select ${escapeHtml(item.symbol)} in creation table"></td>
             ${columnsByClass.all.map((column) => `<td>${escapeHtml(displayValue(item, column))}</td>`).join('')}
-            <td><button type="button" class="button secondary creation-remove" data-remove-builder-item="${escapeHtml(instrumentId(item))}" aria-label="Remove ${escapeHtml(item.symbol)} from creation table">Remove</button></td>
           </tr>
-        `).join('') : `<tr><td class="empty-row" colspan="${columnsByClass.all.length + 2}">No instruments in this portfolio yet.</td></tr>`}</tbody>
+        `).join('') : `<tr><td class="empty-row" colspan="${columnsByClass.all.length + 1}">No instruments in this portfolio yet.</td></tr>`}</tbody>
       </table>
     </div>
   `;
@@ -637,12 +673,21 @@ document.querySelector('#column-bounds').addEventListener('change', (event) => {
   columnBounds[column][bound] = input.value;
   renderTable();
 });
-document.querySelector('.membership-actions').addEventListener('change', (event) => {
+elements.portfolioTargetOptions.addEventListener('change', (event) => {
   const checkbox = event.target.closest('[data-portfolio-target]');
   if (!checkbox) return;
-  if (checkbox.checked) removePortfolioNames.add(checkbox.value);
-  else removePortfolioNames.delete(checkbox.value);
+  if (checkbox.dataset.portfolioTarget === 'new') {
+    targetNewPortfolio = checkbox.checked;
+  } else if (checkbox.checked) {
+    targetPortfolioNames.add(checkbox.value);
+    targetNewPortfolio = false;
+  } else {
+    targetPortfolioNames.delete(checkbox.value);
+  }
   renderPortfolioChoices();
+});
+elements.portfolioTargetOptions.addEventListener('input', (event) => {
+  if (event.target.id === 'new-portfolio-target-name') targetNewPortfolioName = event.target.value;
 });
 document.querySelector('#add-selected-to-builder').addEventListener('click', () => {
   if (!selectedSymbols.size) {
@@ -655,20 +700,97 @@ document.querySelector('#add-selected-to-builder').addEventListener('click', () 
   selectedGroupRows.clear();
   selectedBuilderSymbols.clear();
   elements.status.textContent = `Added ${added} selected instrument${added === 1 ? '' : 's'} to the portfolio builder list.`;
-  document.querySelector('#add-selected-to-builder').closest('.portfolio-action-picker').open = false;
+  render();
+});
+document.querySelector('#add-selected-to-portfolios').addEventListener('click', () => {
+  if (!selectedSymbols.size) {
+    elements.status.textContent = 'Select instruments in the catalog before adding them to portfolios.';
+    return;
+  }
+  const targets = [...targetPortfolioNames].filter((name) => portfolios.has(name));
+  const name = targetNewPortfolioName.trim();
+  if (targetNewPortfolio && !name) {
+    elements.status.textContent = 'Enter a name for the new portfolio or choose saved portfolio targets.';
+    elements.portfolioTargetPicker.open = true;
+    elements.portfolioTargetName.focus();
+    return;
+  }
+  if (targetNewPortfolio && portfolios.has(name)) {
+    elements.status.textContent = `A portfolio named "${name}" already exists. Uncheck New and choose that saved portfolio instead.`;
+    elements.portfolioTargetPicker.open = true;
+    return;
+  }
+  if (!targetNewPortfolio && !targets.length) {
+    elements.status.textContent = 'Choose one or more saved portfolio targets before adding selected instruments.';
+    elements.portfolioTargetPicker.open = true;
+    return;
+  }
+
+  const portfolioCount = targets.length + Number(targetNewPortfolio);
+  const selected = [...selectedSymbols];
+  let affected = 0;
+  targets.forEach((target) => {
+    const members = portfolios.get(target);
+    selected.forEach((id) => {
+      if (!members.has(id)) {
+        members.add(id);
+        affected += 1;
+      }
+    });
+    if (activePortfolioView === target) {
+      builderSymbols.clear();
+      members.forEach((id) => builderSymbols.add(id));
+    }
+  });
+  if (targetNewPortfolio) {
+    portfolios.set(name, new Set(selected));
+    affected += selected.length;
+    activePortfolioView = name;
+    builderSymbols.clear();
+    selected.forEach((id) => builderSymbols.add(id));
+    targetPortfolioNames.add(name);
+    targetNewPortfolio = false;
+    targetNewPortfolioName = '';
+  }
+  selectedSymbols.clear();
+  selectedGroupRows.clear();
+  selectedBuilderSymbols.clear();
+  elements.status.textContent = `Added selected instruments to ${portfolioCount} portfolio target${portfolioCount === 1 ? '' : 's'}${affected ? '.' : '; all were already members.'}`;
+  render();
+});
+document.querySelector('#remove-selected-from-portfolios').addEventListener('click', () => {
+  if (!selectedSymbols.size) {
+    elements.status.textContent = 'Select catalog instruments before removing them from portfolios.';
+    return;
+  }
+  const targets = [...targetPortfolioNames].filter((name) => portfolios.has(name));
+  if (!targets.length) {
+    elements.status.textContent = 'Choose one or more saved portfolio targets before removing selected instruments.';
+    elements.portfolioTargetPicker.open = true;
+    return;
+  }
+  let removed = 0;
+  targets.forEach((name) => {
+    const members = portfolios.get(name);
+    selectedSymbols.forEach((id) => {
+      if (members.delete(id)) removed += 1;
+    });
+    if (activePortfolioView === name) {
+      builderSymbols.clear();
+      members.forEach((id) => builderSymbols.add(id));
+    }
+  });
+  elements.status.textContent = removed
+    ? `Removed ${removed} instrument membership${removed === 1 ? '' : 's'} from the selected portfolios.`
+    : 'None of the selected instruments were members of the selected portfolios.';
+  selectedSymbols.clear();
+  selectedGroupRows.clear();
   render();
 });
 elements.builderItems.addEventListener('click', (event) => {
   if (event.target.closest('#remove-selected-from-builder')) {
     selectedBuilderSymbols.forEach((symbol) => builderSymbols.delete(symbol));
     selectedBuilderSymbols.clear();
-    render();
-    return;
-  }
-  const button = event.target.closest('[data-remove-builder-item]');
-  if (button) {
-    builderSymbols.delete(button.dataset.removeBuilderItem);
-    selectedBuilderSymbols.delete(button.dataset.removeBuilderItem);
     render();
     return;
   }
@@ -757,19 +879,4 @@ document.querySelector('#save-portfolio-builder').addEventListener('submit', (ev
   elements.status.textContent = `Saved ${name} with ${builderSymbols.size} instrument${builderSymbols.size === 1 ? '' : 's'}.`;
   render();
 });
-document.querySelector('#remove-selected').addEventListener('click', () => {
-  let removed = 0;
-  removePortfolioNames.forEach((name) => selectedSymbols.forEach((symbol) => {
-    if (portfolios.get(name)?.delete(symbol)) {
-      removed += 1;
-      if (activePortfolioView === name) builderSymbols.delete(symbol);
-    }
-  }));
-  if (!removed) return;
-  elements.status.textContent = `Removed ${removed} instrument${removed === 1 ? '' : 's'} from the selected portfolios.`;
-  removePortfolioNames.clear();
-  document.querySelector('#remove-selected').closest('.portfolio-action-picker').open = false;
-  render();
-});
-
 render();

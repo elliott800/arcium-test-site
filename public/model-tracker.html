@@ -18,25 +18,22 @@
     <header class="page-heading">
       <p class="eyebrow">MODEL WORKSPACE</p>
       <h1>Model Tracker</h1>
-      <p>Search the combined machine catalog and organize models into named tracking lists.</p>
+      <p>Browse model types and their source silos, then organize models into named tracking lists.</p>
     </header>
 
     <section class="panel model-tracker-panel" aria-label="Model list maker">
       <div class="toolbar model-toolbar">
-        <label class="field machine-field">MACHINE
-          <select id="machine-filter">
-            <option value="all">All machines</option>
-            <option value="Machine 01">Machine 01</option>
-            <option value="Machine 02">Machine 02</option>
-          </select>
+        <label class="field silo-field">SILO
+          <select id="silo-filter"><option value="all">All silos</option></select>
         </label>
         <label class="search-field">SEARCH MODELS
-          <input id="model-search" type="search" placeholder='Search names or tags: #machine-01 !#machine-02 "model_a"'>
+          <input id="model-search" type="search" placeholder='Search models or tags: #alphabag !#time-mix "alpha"'>
         </label>
         <button id="open-model-filters" class="button secondary" type="button">Filters</button>
         <button id="open-model-columns" class="button secondary" type="button">Columns</button>
       </div>
       <div id="model-filter-chips" class="filter-chip-row" aria-label="Active model filters"></div>
+      <p id="model-data-notice" class="help">Silo assignments, instruments, rates, test statistics, and test times are not present in the sample model data; unavailable values are shown as Not recorded.</p>
       <div class="model-list-toolbar">
         <label class="field model-list-select">LOAD LIST BY NAME
           <select id="model-list-select"><option value="">New</option></select>
@@ -53,14 +50,14 @@
       <div id="model-tracker-status" class="status" role="status" aria-live="polite"></div>
       <div class="model-table-grid">
         <section class="model-table-panel" aria-labelledby="model-catalog-title">
-          <div class="section-heading"><div><h2 id="model-catalog-title">Combined model catalog</h2><p>Select models from either machine to add to the open list.</p></div></div>
+          <div class="section-heading"><div><h2 id="model-catalog-title">Model catalog</h2><p>Drill through model type and silo to review model details.</p></div></div>
           <div class="model-table-actions">
             <label class="select-all"><input id="select-all-models" type="checkbox"> Select all visible</label>
             <span id="selected-model-count" class="muted">0 selected</span>
-            <button id="add-models" class="button primary" type="button">Add selected</button>
+            <button id="add-models" class="button primary" type="button">Stage selected</button>
           </div>
           <div class="table-wrap">
-            <table id="model-catalog-table">
+            <table id="model-catalog-table" class="model-tree-table">
               <thead></thead>
               <tbody></tbody>
             </table>
@@ -73,7 +70,7 @@
             <button id="remove-models" class="button secondary" type="button">Remove selected</button>
           </div>
           <div class="table-wrap">
-            <table id="model-list-table" class="creation-table" aria-label="Model Tracker creation table">
+            <table id="model-list-table" class="creation-table model-tree-table" aria-label="Model Tracker creation table">
               <thead></thead>
               <tbody></tbody>
             </table>

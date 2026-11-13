@@ -1,22 +1,26 @@
 const MODEL_CATALOG = [
-  { id: 'model_a', machines: ['Machine 01'], tags: ['model', 'machine-01'] },
-  { id: 'model_b', machines: ['Machine 01'], tags: ['model', 'machine-01'] },
-  { id: 'model_c', machines: ['Machine 01', 'Machine 02'], tags: ['model', 'machine-01', 'machine-02'] },
-  { id: 'model_d', machines: ['Machine 02'], tags: ['model', 'machine-02'] },
+  { id: 'model_a', name: 'alpha', type: 'AlphaBag', silo: '', machines: ['Machine 01'], instruments: [], rates: [], inSampleStats: null, outSampleStats: null, currentSr: null, inSampleTestedAt: null, outSampleTestedAt: null, tags: ['model', 'alphabag', 'machine-01'] },
+  { id: 'model_b', name: 'classifier', type: 'CLFBag', silo: '', machines: ['Machine 01'], instruments: [], rates: [], inSampleStats: null, outSampleStats: null, currentSr: null, inSampleTestedAt: null, outSampleTestedAt: null, tags: ['model', 'clfbag', 'machine-01'] },
+  { id: 'model_c', name: 'model_c', type: 'Mix Models', silo: '', machines: ['Machine 01', 'Machine 02'], instruments: [], rates: [], inSampleStats: null, outSampleStats: null, currentSr: null, inSampleTestedAt: null, outSampleTestedAt: null, tags: ['model', 'mix', 'machine-01', 'machine-02'] },
+  { id: 'model_d', name: 'model_d', type: 'Time Mix Models', silo: '', machines: ['Machine 02'], instruments: [], rates: [], inSampleStats: null, outSampleStats: null, currentSr: null, inSampleTestedAt: null, outSampleTestedAt: null, tags: ['model', 'time-mix', 'machine-02'] },
 ];
+const MODEL_TYPE_ORDER = ['AlphaBag', 'CLFBag', 'Mix Models', 'Time Mix Models'];
 const MODEL_COLUMNS = [
-  { id: 'id', label: 'Model' },
-  { id: 'machines', label: 'Machines' },
-  { id: 'tags', label: 'Tags' },
-  { id: 'scope', label: 'Machine scope' },
-  { id: 'machineCount', label: 'Machine count' },
+  { id: 'modelName', label: 'Model name' },
+  { id: 'instruments', label: 'Instruments' },
+  { id: 'rates', label: 'Data rates' },
+  { id: 'inSampleStats', label: 'In-sample stats' },
+  { id: 'outSampleStats', label: 'Out-of-sample stats' },
+  { id: 'currentSr', label: 'Current SR' },
+  { id: 'inSampleTestedAt', label: 'In-sample tested' },
+  { id: 'outSampleTestedAt', label: 'Out-of-sample tested' },
 ];
 const MODEL_LISTS_KEY = 'arcium-model-tracker-lists-v1';
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[character]);
 const elements = {
-  machine: document.querySelector('#machine-filter'),
+  silo: document.querySelector('#silo-filter'),
   search: document.querySelector('#model-search'),
   filterChips: document.querySelector('#model-filter-chips'),
   listSelect: document.querySelector('#model-list-select'),
@@ -39,12 +43,17 @@ let draftMembers = new Set();
 let selectedCatalogModels = new Set();
 let selectedListMembers = new Set();
 let filters = { include: new Set(), exclude: new Set() };
-let columns = ['id', 'machines', 'tags'];
+let columns = MODEL_COLUMNS.map((column) => column.id);
 let selectedAvailableColumns = new Set();
 let selectedActiveColumns = new Set();
-let sort = { column: 'id', direction: 'asc' };
+let sort = { column: 'modelName', direction: 'asc' };
 let draggedColumn = null;
 let searchQuery = '';
+const expandedRows = new Set(['catalog', 'member'].flatMap((table) => MODEL_TYPE_ORDER.flatMap((type) => [
+  `${table}:type:${type}`,
+  ...[...new Set(MODEL_CATALOG.filter((model) => model.type === type).map((model) => model.silo || 'Not recorded'))]
+    .map((silo) => `${table}:silo:${type}:${silo}`),
+])));
 
 function loadModelLists() {
   let raw;
@@ -119,11 +128,14 @@ function parseSearch() {
 function currentRows() {
   const query = parseSearch();
   return MODEL_CATALOG.filter((model) => {
-    if (elements.machine.value !== 'all' && !model.machines.includes(elements.machine.value)) return false;
-    const tags = new Set(model.tags);
+    if (elements.silo.value !== 'all' && (model.silo || 'Not recorded') !== elements.silo.value) return false;
+    const tags = new Set([...model.tags, model.type.toLowerCase().replace(/\s+/g, '-')]);
     if (![...query.include].every((tag) => tags.has(tag))) return false;
     if ([...query.exclude].some((tag) => tags.has(tag))) return false;
-    const searchable = model.id.toLowerCase();
+    const searchable = [
+      model.id, model.name, model.type, model.silo, ...model.instruments, ...model.rates,
+      ...model.machines, ...model.tags,
+    ].join(' ').toLowerCase();
     return query.text.every((term) => searchable.includes(term));
   }).sort((left, right) => {
     const a = valueFor(left, sort.column);
@@ -134,11 +146,10 @@ function currentRows() {
 }
 
 function valueFor(model, column) {
-  if (column === 'machines') return model.machines.join(', ');
-  if (column === 'tags') return model.tags.join(', ');
-  if (column === 'scope') return model.machines.length > 1 ? 'Shared' : 'Single machine';
-  if (column === 'machineCount') return String(model.machines.length);
-  return model.id;
+  if (column === 'modelName') return model.name;
+  const value = model[column];
+  if (Array.isArray(value)) return value.length ? value.join(', ') : 'Not recorded';
+  return value === null || value === undefined || value === '' ? 'Not recorded' : String(value);
 }
 
 function renderColumns() {
@@ -158,6 +169,12 @@ function renderColumns() {
 
 function renderListChoices() {
   const selectedList = lists.find((list) => list.name === activeListName);
+  const selectedSilo = elements.silo.value;
+  const silos = [...new Set(MODEL_CATALOG.map((model) => model.silo || 'Not recorded'))].sort();
+  elements.silo.innerHTML = `<option value="all">All silos</option>${silos.map((silo) => `
+    <option value="${escapeHtml(silo)}">${escapeHtml(silo)}</option>
+  `).join('')}`;
+  elements.silo.value = silos.includes(selectedSilo) ? selectedSilo : 'all';
   elements.listSelect.innerHTML = `<option value="">New</option>${lists.map((list) => `
     <option value="${escapeHtml(list.name)}" ${list.name === activeListName ? 'selected' : ''}>${escapeHtml(list.name)} (${list.items.length})</option>
   `).join('')}`;
@@ -169,6 +186,11 @@ function renderListChoices() {
 }
 
 function renderFilters() {
+  const tags = [...new Set(MODEL_CATALOG.flatMap((model) => [
+    ...model.tags,
+    model.type.toLowerCase().replace(/\s+/g, '-'),
+  ]))].sort();
+  document.querySelector('#model-tags').innerHTML = tags.map((tag) => `<option value="${escapeHtml(tag)}"></option>`).join('');
   elements.filterChips.innerHTML = [
     ...[...filters.include].map((tag) => ({ type: 'include', tag, prefix: '#' })),
     ...[...filters.exclude].map((tag) => ({ type: 'exclude', tag, prefix: '!#' })),
@@ -177,6 +199,75 @@ function renderFilters() {
       <button type="button" data-remove-filter="${type}:${escapeHtml(tag)}" aria-label="Remove ${prefix}${escapeHtml(tag)}">×</button>
     </span>
   `).join('');
+}
+
+function modelTree(rows) {
+  return MODEL_TYPE_ORDER.map((type) => {
+    const models = rows.filter((model) => model.type === type);
+    if (!models.length) return null;
+    const silos = new Map();
+    models.forEach((model) => {
+      const silo = model.silo || 'Not recorded';
+      if (!silos.has(silo)) silos.set(silo, []);
+      silos.get(silo).push(model);
+    });
+    return {
+      key: `type:${type}`,
+      label: type,
+      children: [...silos].sort(([left], [right]) => left.localeCompare(right)).map(([silo, siloModels]) => ({
+        key: `silo:${type}:${silo}`,
+        label: silo,
+        children: siloModels.map((model) => ({ key: `model:${model.id}`, label: model.name, model })),
+      })),
+    };
+  }).filter(Boolean);
+}
+
+function modelsInNode(node) {
+  return node.model ? [node.model] : node.children.flatMap(modelsInNode);
+}
+
+function findModelNode(nodes, key) {
+  for (const node of nodes) {
+    if (node.key === key) return node;
+    const found = findModelNode(node.children || [], key);
+    if (found) return found;
+  }
+  return null;
+}
+
+function renderModelNode(node, columnsInUse, selected, type, depth = 0) {
+  const models = modelsInNode(node);
+  const isGroup = !node.model;
+  const selectedCount = models.filter((model) => selected.has(model.id)).length;
+  const checked = models.length > 0 && selectedCount === models.length;
+  const partial = selectedCount > 0 && !checked;
+  const rowKey = `${type}:${node.key}`;
+  const expanded = isGroup && expandedRows.has(rowKey);
+  const values = node.model
+    ? columnsInUse.map((column) => valueFor(node.model, column.id))
+    : columnsInUse.map((column, index) => {
+      if (index === 0 || column.id === 'modelName') return node.label;
+      if (index === 1 || column.id === 'instruments') return `${models.length} model${models.length === 1 ? '' : 's'}`;
+      return '';
+    });
+  const rowClass = isGroup
+    ? `group-row ${node.key.startsWith('type:') ? 'model-type-row' : 'model-silo-row'}`
+    : 'model-data-row';
+  const row = `<tr class="${rowClass}" data-depth="${depth}">
+    <td class="tree-pick">
+      ${isGroup
+    ? `<button type="button" class="tree-toggle" data-toggle-model-node="${escapeHtml(rowKey)}" aria-label="${expanded ? 'Collapse' : 'Expand'} ${escapeHtml(node.label)}" aria-expanded="${expanded}"><span aria-hidden="true">›</span></button>`
+    : '<span class="tree-toggle-spacer" aria-hidden="true"></span>'}
+      <input type="checkbox" ${isGroup
+    ? `data-${type}-group="${escapeHtml(node.key)}" ${partial ? 'data-partial="true"' : ''}`
+    : `data-${type}-model="${escapeHtml(node.model.id)}"`} ${checked ? 'checked' : ''} aria-label="Select ${escapeHtml(node.label)}">
+    </td>
+    ${values.map((value, index) => `<td class="${index === 0 && isGroup ? 'model-tree-label' : ''}">${escapeHtml(value)}</td>`).join('')}
+  </tr>`;
+  if (!expanded) return row;
+  return `${row}<tr class="drill-child"><td colspan="${columnsInUse.length + 1}"><table class="nested-table"><tbody>${node.children
+    .map((child) => renderModelNode(child, columnsInUse, selected, type, depth + 1)).join('')}</tbody></table></td></tr>`;
 }
 
 function renderTable(table, rows, selected, type) {
@@ -188,12 +279,10 @@ function renderTable(table, rows, selected, type) {
       </button>
     </th>
   `).join('')}</tr>`;
-  table.querySelector('tbody').innerHTML = rows.length ? rows.map((model) => `
-    <tr>
-      <td><input type="checkbox" data-${type}-model="${escapeHtml(model.id)}" ${selected.has(model.id) ? 'checked' : ''} aria-label="Select ${escapeHtml(model.id)}"></td>
-      ${columnsInUse.map((column) => `<td>${escapeHtml(valueFor(model, column.id))}</td>`).join('')}
-    </tr>
-  `).join('') : `<tr><td colspan="${columnsInUse.length + 1}" class="empty-row">${type === 'catalog' ? 'No catalog models match these filters.' : 'No models in this list yet.'}</td></tr>`;
+  table.querySelector('tbody').innerHTML = rows.length
+    ? modelTree(rows).map((node) => renderModelNode(node, columnsInUse, selected, type)).join('')
+    : `<tr><td colspan="${columnsInUse.length + 1}" class="empty-row">${type === 'catalog' ? 'No catalog models match these filters.' : 'No models in this list yet.'}</td></tr>`;
+  table.querySelectorAll('input[data-partial="true"]').forEach((checkbox) => { checkbox.indeterminate = true; });
 }
 
 function render() {
@@ -213,7 +302,7 @@ function render() {
     && members.some((model) => selectedListMembers.has(model.id));
 }
 
-elements.machine.addEventListener('change', render);
+elements.silo.addEventListener('change', render);
 elements.search.addEventListener('input', () => {
   searchQuery = elements.search.value;
   render();
@@ -241,16 +330,39 @@ elements.selectAllMembers.addEventListener('change', () => {
 });
 elements.catalog.addEventListener('change', (event) => {
   const checkbox = event.target.closest('[data-catalog-model]');
-  if (!checkbox) return;
-  if (checkbox.checked) selectedCatalogModels.add(checkbox.dataset.catalogModel);
-  else selectedCatalogModels.delete(checkbox.dataset.catalogModel);
+  if (checkbox) {
+    if (checkbox.checked) selectedCatalogModels.add(checkbox.dataset.catalogModel);
+    else selectedCatalogModels.delete(checkbox.dataset.catalogModel);
+    render();
+    return;
+  }
+  const groupCheckbox = event.target.closest('[data-catalog-group]');
+  if (!groupCheckbox) return;
+  const node = findModelNode(modelTree(currentRows()), groupCheckbox.dataset.catalogGroup);
+  if (!node) return;
+  modelsInNode(node).forEach((model) => {
+    if (groupCheckbox.checked) selectedCatalogModels.add(model.id);
+    else selectedCatalogModels.delete(model.id);
+  });
   render();
 });
 elements.list.addEventListener('change', (event) => {
   const checkbox = event.target.closest('[data-member-model]');
-  if (!checkbox) return;
-  if (checkbox.checked) selectedListMembers.add(checkbox.dataset.memberModel);
-  else selectedListMembers.delete(checkbox.dataset.memberModel);
+  if (checkbox) {
+    if (checkbox.checked) selectedListMembers.add(checkbox.dataset.memberModel);
+    else selectedListMembers.delete(checkbox.dataset.memberModel);
+    render();
+    return;
+  }
+  const groupCheckbox = event.target.closest('[data-member-group]');
+  if (!groupCheckbox) return;
+  const memberModels = [...draftMembers].map((id) => MODEL_CATALOG.find((model) => model.id === id)).filter(Boolean);
+  const node = findModelNode(modelTree(memberModels), groupCheckbox.dataset.memberGroup);
+  if (!node) return;
+  modelsInNode(node).forEach((model) => {
+    if (groupCheckbox.checked) selectedListMembers.add(model.id);
+    else selectedListMembers.delete(model.id);
+  });
   render();
 });
 document.querySelector('#add-models').addEventListener('click', () => {
@@ -367,6 +479,14 @@ document.querySelector('#remove-model-columns').addEventListener('click', () => 
 
 [elements.catalog, elements.list].forEach((table) => {
   table.addEventListener('click', (event) => {
+    const toggle = event.target.closest('[data-toggle-model-node]');
+    if (toggle) {
+      const key = toggle.dataset.toggleModelNode;
+      if (expandedRows.has(key)) expandedRows.delete(key);
+      else expandedRows.add(key);
+      render();
+      return;
+    }
     const button = event.target.closest('[data-sort]');
     if (!button) return;
     const column = button.dataset.sort;
